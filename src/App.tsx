@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useMemo } from 'react';
+import Form from './components/Form';
+import ActivityList from './components/ActivityList';
+import CalorieTracker from './components/CalorieTracker';
+import { useActivity } from './hooks/useActivity';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { state, dispatch } = useActivity();
+
+  useEffect(() => {
+    localStorage.setItem('activities', JSON.stringify(state.activities));
+  }, [state.activities]);
+
+  const canRestartApp = () =>
+    useMemo(() => state.activities.length > 0, [state.activities]);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <header className="bg-lime-600 py-4">
+        <div className="max-w-4xl mx-auto flex justify-between items-center">
+          <h1 className="text-center text-2xl font-medium text-white">
+            Contador de calorías
+          </h1>
+          {canRestartApp() && (
+            <button
+              className="text-white border rounded-3xl px-4 py-2 hover:bg-white hover:text-black transition-colors"
+              onClick={() => dispatch({ type: 'restart' })}
+            >
+              Reiniciar Aplicación
+            </button>
+          )}
+        </div>
+      </header>
+
+      <section className="bg-lime-500 py-20 px-5">
+        <div className="max-w-4xl mx-auto">
+          <Form />
+        </div>
+      </section>
+
+      <section className="bg-gray-800 py-10">
+        <div className="max-w-4xl mx-auto">
+          <CalorieTracker />
+        </div>
+      </section>
+
+      <section className="max-w-4xl mx-auto p-10 ">
+        <ActivityList />
+      </section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
